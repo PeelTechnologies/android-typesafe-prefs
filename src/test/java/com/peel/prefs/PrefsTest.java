@@ -17,7 +17,6 @@ package com.peel.prefs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -43,51 +42,40 @@ import android.content.SharedPreferences;
 public class PrefsTest {
 
     private Context context;
+    private Prefs prefs;
     private static final Gson gson = new Gson();
 
     @Before
     public void setUp() {
         context = AndroidFixtures.createMockContext();
-        Prefs.init(context, gson);
-        Prefs.clear();
+        prefs = new Prefs(context, gson);
     }
 
     @Test
     public void booleanDefaultValueOnGet() {
         PrefsKey<Boolean> testKey = new PrefsKey<>("testKey", Boolean.class);
-        Prefs.remove(testKey);
-        assertFalse(Prefs.get(testKey));
-        Prefs.put(testKey, true);
-        assertTrue(Prefs.get(testKey));
-        Prefs.remove(testKey);
+        prefs.remove(testKey);
+        assertFalse(prefs.get(testKey));
+        prefs.put(testKey, true);
+        assertTrue(prefs.get(testKey));
+        prefs.remove(testKey);
     }
 
     @Test
     public void testPut() throws Exception {
         PrefsKey<String> key = new PrefsKey<>("userId", String.class);
-        assertNull(Prefs.get(key));
-        Prefs.put(key, "19999999999");
-        assertNotNull(Prefs.get(key));
-        assertEquals("19999999999", Prefs.get(key));
-    }
-
-    @Test
-    public void testPutIfNew() throws Exception {
-        PrefsKey<String> key = new PrefsKey<>("userId", String.class);
-        Prefs.put(key, "19999999999");
-        assertEquals("19999999999", Prefs.get(key));
-        Prefs.bindIfAbsent(key, "16506953562");
-        assertNotEquals("19999999999", "16506953562");
-        assertNotEquals("16506953562", Prefs.get(key));
-        assertEquals("19999999999", Prefs.get(key));
+        assertNull(prefs.get(key));
+        prefs.put(key, "19999999999");
+        assertNotNull(prefs.get(key));
+        assertEquals("19999999999", prefs.get(key));
     }
 
     @Test
     public void testClear() throws Exception {
         PrefsKey<String> key = new PrefsKey<>("userId", String.class);
-        Prefs.put(key, "a");
-        assertEquals("a", Prefs.get(key));
-        Prefs.clear();
-        assertFalse(Prefs.has(key));
+        prefs.put(key, "a");
+        assertEquals("a", prefs.get(key));
+        prefs.clear();
+        assertFalse(prefs.contains(key));
     }
 }

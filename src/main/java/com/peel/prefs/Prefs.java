@@ -37,65 +37,36 @@ public class Prefs {
         <T> void onPut(PrefsKey<T> key, T value);
         <T> void onRemove(PrefsKey<T> key);
     }
-    private static final List<EventListener> listeners = new ArrayList<>();
+    private final List<EventListener> listeners = new ArrayList<>();
 
-    public static void addListener(EventListener listener) {
+    public void addListener(EventListener listener) {
         listeners.add(listener);
     }
 
-    public static void removeListener(EventListener listener) {
+    public void removeListener(EventListener listener) {
         listeners.remove(listener);
     }
 
-    private static Context context;
-    private static Gson gson;
-    private static String prefsFileName;
+    private final Context context;
+    private final Gson gson;
+    private final String prefsFileName;
 
-    public static void init(Context context, Gson gson) {
-        init(context, gson, DEFAULT_PREFS_FILE);
+    public Prefs(Context context, Gson gson) {
+        this(context, gson, DEFAULT_PREFS_FILE);
     }
 
-    public static void init(Context context, Gson gson, String prefsFileName) {
-        Prefs.context = context;
-        Prefs.gson = gson;
-        Prefs.prefsFileName = prefsFileName;
+    public Prefs(Context context, Gson gson, String prefsFileName) {
+        this.context = context;
+        this.gson = gson;
+        this.prefsFileName = prefsFileName;
     }
 
-    public static Context context() {
+    public Context context() {
         return context;
     }
 
-    public static <T> void put(PrefsKey<T> key, T value) {
-        String json = gson.toJson(value);
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        prefs.edit().putString(key.getName(), json).apply();
-        for (EventListener listener : listeners) listener.onPut(key, value);
-    }
-
-    public static <R> void bindIfAbsent(PrefsKey<R> key, R value) {
-        if (!has(key)) {
-            put(key, value);
-        }
-    }
-
-    /**
-     * Removes a provider as well as any registered instances with this name
-     * @param <T> the type of the {@code TypedKey}
-     * @param key the key that was previously bound as an instance or a provider. If the key was not bound previously, nothing is done
-     */
-    public static <T> void remove(PrefsKey<T> key) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        prefs.edit().remove(key.getName()).apply();
-        for (EventListener listener : listeners) listener.onRemove(key);
-    }
-
-    public static <T> boolean has(PrefsKey<T> key) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        return prefs.contains(key.getName());
-    }
-
     @SuppressWarnings("unchecked")
-    public static <T> T get(PrefsKey<T> key) {
+    public <T> T get(PrefsKey<T> key) {
         SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
         String json = prefs.getString(key.getName(), null);
         T instance = gson.fromJson(json, key.getTypeOfValue());
@@ -105,11 +76,34 @@ public class Prefs {
         return instance;
     }
 
-    public static <T> T get(PrefsKey<T> key, T defaultValue) {
-        return has(key) ? get(key) : defaultValue;
+    public <T> T get(PrefsKey<T> key, T defaultValue) {
+        return contains(key) ? get(key) : defaultValue;
     }
 
-    public static void clear() {
+    public <T> boolean contains(PrefsKey<T> key) {
+        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        return prefs.contains(key.getName());
+    }
+
+    public <T> void put(PrefsKey<T> key, T value) {
+        String json = gson.toJson(value);
+        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        prefs.edit().putString(key.getName(), json).apply();
+        for (EventListener listener : listeners) listener.onPut(key, value);
+    }
+
+    /**
+     * Removes a provider as well as any registered instances with this name
+     * @param <T> the type of the {@code TypedKey}
+     * @param key the key that was previously bound as an instance or a provider. If the key was not bound previously, nothing is done
+     */
+    public <T> void remove(PrefsKey<T> key) {
+        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        prefs.edit().remove(key.getName()).apply();
+        for (EventListener listener : listeners) listener.onRemove(key);
+    }
+
+    public void clear() {
         SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
     }
