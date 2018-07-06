@@ -148,22 +148,22 @@ public class Prefs {
         Type type = key.getTypeOfValue();
         Editor editor = prefs.edit();
         if (type == Boolean.class || type == boolean.class) {
-            editor.putBoolean(name, (boolean) value);
+            editor.putBoolean(name, (Boolean) value);
         } else if (type == String.class) {
             editor.putString(name, (String) value);
         } else if (type == Integer.class || type == int.class) {
-            editor.putInt(name, (int) value);
+            editor.putInt(name, (Integer) value);
         } else if (type == Long.class || type == long.class) {
-            editor.putLong(name, (long) value);
+            editor.putLong(name, (Long) value);
         } else if (type == Float.class || type == float.class) {
-            editor.putFloat(name, (float) value);
+            editor.putFloat(name, (Float) value);
         } else if (type == Double.class || type == double.class) {
-            Double wrapper = value instanceof Double ? (Double) value : new Double((double) value);
+            Double wrapper = value instanceof Double ? (Double) value : new Double((Double) value);
             editor.putFloat(name, wrapper.floatValue());
         } else if (type == Short.class || type == short.class) {
-            editor.putInt(name, (short) value);
+            editor.putInt(name, (Short) value);
         } else if (type == Byte.class || type == byte.class) {
-            editor.putInt(name, (byte) value);
+            editor.putInt(name, (Byte) value);
         } else if (type.equals(STRING_SET_TYPE)) {
             editor.putStringSet(name, (Set<String>)value);
         } else {
