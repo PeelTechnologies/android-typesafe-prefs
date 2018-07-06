@@ -1,4 +1,4 @@
-# appscope
+# Android Typesafe Prefs
 An Android library to access Android SharedPreferences in a TypeSafe manner.
 
 Example:
