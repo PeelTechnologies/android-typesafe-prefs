@@ -30,10 +30,11 @@ import android.content.SharedPreferences;
  * @author Inderjeet Singh
  */
 public class AndroidFixtures {
-    public interface PrefsListener {
-        public void onGet(String key);
-        public void onPut(String key, Object value);
-        public void onRemove(String key);
+    public static class PrefsListener {
+        public void onGet(String key) {}
+        public void onPut(String key, Object value) {}
+        public void onRemove(String key) {}
+        public void onInit(SharedPreferences persistPrefs, SharedPreferences configPrefs) {}
     }
 
     public static Context createMockContext() {
@@ -46,6 +47,7 @@ public class AndroidFixtures {
         SharedPreferences configPrefs = createMockSharedPreferences(context, listener);
         Mockito.when(context.getSharedPreferences("persistent_props", Context.MODE_PRIVATE)).thenReturn(persistPrefs);
         Mockito.when(context.getSharedPreferences("config_props", Context.MODE_PRIVATE)).thenReturn(configPrefs);
+        if (listener != null) listener.onInit(persistPrefs, configPrefs);
         return context;
     }
 

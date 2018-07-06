@@ -15,13 +15,17 @@
  */
 package com.peel.prefs;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
 /**
  * This class provides type-safe access to Android preferences. Any arbitrary object
@@ -32,6 +36,7 @@ import android.content.SharedPreferences;
 public class Prefs {
 
     static final String DEFAULT_PREFS_FILE = "persistent_props";
+    private static final Type STRING_SET_TYPE = new TypeToken<Set<String>>() {}.getType();
 
     public interface EventListener {
         <T> void onPut(PrefsKey<T> key, T value);
@@ -68,12 +73,63 @@ public class Prefs {
     @SuppressWarnings("unchecked")
     public <T> T get(PrefsKey<T> key) {
         SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        String json = prefs.getString(key.getName(), null);
-        T instance = gson.fromJson(json, key.getTypeOfValue());
-        if (instance == null && key.getTypeOfValue() == Boolean.class) {
+        String name = key.getName();
+        Type type = key.getTypeOfValue();
+        T instance = null;
+        try {
+            if (prefs.contains(name)) {
+                if (type == Boolean.class || type == boolean.class) {
+                    boolean value = prefs.getBoolean(name, false);
+                    instance = (T) Boolean.valueOf(value);
+                } else if (type == String.class) {
+                    String str = prefs.getString(name, null);
+                    str = stripJsonQuotesIfPresent(str);
+                    instance = (T) str;
+                } else if (type == Integer.class || type == int.class) {
+                    int value = prefs.getInt(name, 0);
+                    instance = (T) Integer.valueOf((int)value);
+                } else if (type == Long.class || type == long.class) {
+                    long value = prefs.getLong(name, 0L);
+                    instance = (T) Long.valueOf((long)value);
+                } else if (type == Float.class || type == float.class) {
+                    float value = prefs.getFloat(name, 0f);
+                    instance = (T) Float.valueOf((float)value);
+                } else if (type == Double.class || type == double.class) {
+                    float value = prefs.getFloat(name, 0f);
+                    instance = (T) Double.valueOf((double)value);
+                } else if (type == Short.class || type == short.class) {
+                    int value = prefs.getInt(name, 0);
+                    instance = (T) Short.valueOf((short)value);
+                } else if (type == Byte.class || type == byte.class) {
+                    int value = prefs.getInt(name, 0);
+                    instance = (T) Byte.valueOf((byte)value);
+                } else if (type.equals(STRING_SET_TYPE)) {
+                    Set<String> value = prefs.getStringSet(name, null);
+                    instance = (T) value;
+                }
+            }
+        } catch (ClassCastException ignored) {
+            // This can happen if the integer was previously stored as String
+        }
+        if (instance == null) {
+            String json = prefs.getString(name, null);
+            instance = gson.fromJson(json, type);
+        }
+        if (instance == null && type == Boolean.class) {
             return (T) Boolean.FALSE; // default value for Boolean to avoid NPE for flags
         }
         return instance;
+    }
+
+    // Visible for testing only
+    static String stripJsonQuotesIfPresent(String str) {
+        if (str == null) return str;
+        int lastCharIndex = str.length() - 1;
+        if (lastCharIndex < 1) return str; // one char string
+        if (str.charAt(0) == '"' && str.charAt(lastCharIndex) == '"') {
+            str = str.substring(1, lastCharIndex);
+        }
+        return str;
     }
 
     public <T> T get(PrefsKey<T> key, T defaultValue) {
@@ -85,10 +141,36 @@ public class Prefs {
         return prefs.contains(key.getName());
     }
 
+    @SuppressWarnings("unchecked")
     public <T> void put(PrefsKey<T> key, T value) {
-        String json = gson.toJson(value);
         SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        prefs.edit().putString(key.getName(), json).apply();
+        String name = key.getName();
+        Type type = key.getTypeOfValue();
+        Editor editor = prefs.edit();
+        if (type == Boolean.class || type == boolean.class) {
+            editor.putBoolean(name, (boolean) value);
+        } else if (type == String.class) {
+            editor.putString(name, (String) value);
+        } else if (type == Integer.class || type == int.class) {
+            editor.putInt(name, (int) value);
+        } else if (type == Long.class || type == long.class) {
+            editor.putLong(name, (long) value);
+        } else if (type == Float.class || type == float.class) {
+            editor.putFloat(name, (float) value);
+        } else if (type == Double.class || type == double.class) {
+            Double wrapper = value instanceof Double ? (Double) value : new Double((double) value);
+            editor.putFloat(name, wrapper.floatValue());
+        } else if (type == Short.class || type == short.class) {
+            editor.putInt(name, (short) value);
+        } else if (type == Byte.class || type == byte.class) {
+            editor.putInt(name, (byte) value);
+        } else if (type.equals(STRING_SET_TYPE)) {
+            editor.putStringSet(name, (Set<String>)value);
+        } else {
+            String json = gson.toJson(value);
+            editor.putString(name, json);
+        }
+        editor.apply();
         for (EventListener listener : listeners) listener.onPut(key, value);
     }
 

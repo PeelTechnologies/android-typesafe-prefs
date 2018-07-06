@@ -62,7 +62,7 @@ public class PrefsTest {
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         PrefsKey<String> key = new PrefsKey<>("userId", String.class);
         assertNull(prefs.get(key));
         prefs.put(key, "19999999999");
@@ -71,11 +71,22 @@ public class PrefsTest {
     }
 
     @Test
-    public void testClear() throws Exception {
+    public void testClear() {
         PrefsKey<String> key = new PrefsKey<>("userId", String.class);
         prefs.put(key, "a");
         assertEquals("a", prefs.get(key));
         prefs.clear();
         assertFalse(prefs.contains(key));
+    }
+
+    @Test
+    public void testStripJsonQuotes() {
+        assertEquals(null, Prefs.stripJsonQuotesIfPresent(null));
+        assertEquals("\"", Prefs.stripJsonQuotesIfPresent("\""));
+        assertEquals("'", Prefs.stripJsonQuotesIfPresent("'"));
+        assertEquals("abcd", Prefs.stripJsonQuotesIfPresent("abcd"));
+        assertEquals("", Prefs.stripJsonQuotesIfPresent("\"\""));
+        assertEquals("a", Prefs.stripJsonQuotesIfPresent("\"a\""));
+        assertEquals("abcd", Prefs.stripJsonQuotesIfPresent("\"abcd\""));
     }
 }
