@@ -45,7 +45,7 @@ public class PrefsKey<T> {
      * @param type the type for this key
      */
 
-    protected PrefsKey(String name, TypeToken<T> type) {
+    public PrefsKey(String name, TypeToken<T> type) {
         this.name = name;
         this.type = type.getType();
     }
