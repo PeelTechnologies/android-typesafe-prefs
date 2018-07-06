@@ -42,6 +42,6 @@ CountryCode country = prefs.get(key);
 ```
 Since `Prefs` class is non-static, you can create multiple instances to manage different preferences files.
 ```
-Prefs pref1 = new Prefs(context, gson, "user-preferences");
+Prefs prefs1 = new Prefs(context, gson, "user-preferences");
 Prefs prefs2 = new Prefs(context, gson, "app-configuration");
 ```
