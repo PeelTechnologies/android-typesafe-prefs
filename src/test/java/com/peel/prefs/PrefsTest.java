@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -31,6 +32,7 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 /**
  * Unit tests for {@link Prefs}
@@ -38,7 +40,7 @@ import android.content.SharedPreferences;
  * @author Inderjeet Singh
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ Context.class, SharedPreferences.class })
+@PrepareForTest({Context.class, SharedPreferences.class, PreferenceManager.class})
 public class PrefsTest {
 
     private Context context;
@@ -88,5 +90,18 @@ public class PrefsTest {
         assertEquals("", Prefs.stripJsonQuotesIfPresent("\"\""));
         assertEquals("a", Prefs.stripJsonQuotesIfPresent("\"a\""));
         assertEquals("abcd", Prefs.stripJsonQuotesIfPresent("\"abcd\""));
+    }
+
+    @Test
+    public void testCustomPrefFile() {
+        prefs = new Prefs(context, gson, "my_props_file");
+        SharedPreferences persistPrefs = AndroidFixtures.createMockSharedPreferences(context, null);
+        Mockito.when(context.getSharedPreferences("my_props_file", Context.MODE_PRIVATE)).thenReturn(persistPrefs);
+
+        PrefsKey<String> key = new PrefsKey<>("key", String.class);
+        assertNull(prefs.get(key));
+        prefs.put(key, "19999999999");
+        assertNotNull(prefs.get(key));
+        assertEquals("19999999999", prefs.get(key));
     }
 }

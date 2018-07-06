@@ -20,9 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 /**
  * Utility class to provide mocks for various Android library classes
@@ -34,7 +36,7 @@ public class AndroidFixtures {
         public void onGet(String key) {}
         public void onPut(String key, Object value) {}
         public void onRemove(String key) {}
-        public void onInit(SharedPreferences persistPrefs, SharedPreferences configPrefs) {}
+        public void onInit(SharedPreferences prefs) {}
     }
 
     public static Context createMockContext() {
@@ -44,14 +46,13 @@ public class AndroidFixtures {
     public static Context createMockContext(PrefsListener listener) {
         Context context = Mockito.mock(Context.class);
         SharedPreferences persistPrefs = createMockSharedPreferences(context, listener);
-        SharedPreferences configPrefs = createMockSharedPreferences(context, listener);
-        Mockito.when(context.getSharedPreferences("persistent_props", Context.MODE_PRIVATE)).thenReturn(persistPrefs);
-        Mockito.when(context.getSharedPreferences("config_props", Context.MODE_PRIVATE)).thenReturn(configPrefs);
-        if (listener != null) listener.onInit(persistPrefs, configPrefs);
+        PowerMockito.mockStatic(PreferenceManager.class);
+        Mockito.when(PreferenceManager.getDefaultSharedPreferences(context)).thenReturn(persistPrefs);
+        if (listener != null) listener.onInit(persistPrefs);
         return context;
     }
 
-    private static SharedPreferences createMockSharedPreferences(Context context, final PrefsListener listener) {
+    public static SharedPreferences createMockSharedPreferences(Context context, final PrefsListener listener) {
         final Map<String, Object> map = new HashMap<>();
         return new SharedPreferences() {
             @Override public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {}

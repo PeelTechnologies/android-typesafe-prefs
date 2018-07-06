@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 /**
  * Unit tests for {@link Prefs}
@@ -34,7 +35,7 @@ import android.content.SharedPreferences;
  * @author Inderjeet Singh
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class, SharedPreferences.class})
+@PrepareForTest({Context.class, SharedPreferences.class, PreferenceManager.class})
 public class DoubleTest {
 
     private static final float TOLERANCE = 0.0001f;
@@ -46,7 +47,7 @@ public class DoubleTest {
     @Before
     public void setUp() {
         context = AndroidFixtures.createMockContext(new AndroidFixtures.PrefsListener() {
-            @Override public void onInit(SharedPreferences persist, SharedPreferences configPrefs) {
+            @Override public void onInit(SharedPreferences persist) {
                 persistPrefs = persist;
             }
         });

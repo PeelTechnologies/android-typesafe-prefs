@@ -15,7 +15,6 @@
  */
 package com.peel.prefs;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -29,6 +28,7 @@ import com.google.gson.Gson;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 /**
  * Unit tests for {@link Prefs}
@@ -36,7 +36,7 @@ import android.content.SharedPreferences;
  * @author Inderjeet Singh
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class, SharedPreferences.class})
+@PrepareForTest({Context.class, SharedPreferences.class, PreferenceManager.class})
 public class BooleanTest {
 
     private Context context;
@@ -47,7 +47,7 @@ public class BooleanTest {
     @Before
     public void setUp() {
         context = AndroidFixtures.createMockContext(new AndroidFixtures.PrefsListener() {
-            @Override public void onInit(SharedPreferences persist, SharedPreferences configPrefs) {
+            @Override public void onInit(SharedPreferences persist) {
                 persistPrefs = persist;
             }
         });

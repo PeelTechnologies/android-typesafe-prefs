@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 
 /**
  * This class provides type-safe access to Android preferences. Any arbitrary object
@@ -35,7 +36,6 @@ import android.content.SharedPreferences.Editor;
  */
 public class Prefs {
 
-    static final String DEFAULT_PREFS_FILE = "persistent_props";
     private static final Type STRING_SET_TYPE = new TypeToken<Set<String>>() {}.getType();
 
     public interface EventListener {
@@ -57,7 +57,7 @@ public class Prefs {
     private final String prefsFileName;
 
     public Prefs(Context context, Gson gson) {
-        this(context, gson, DEFAULT_PREFS_FILE);
+        this(context, gson, null);
     }
 
     public Prefs(Context context, Gson gson, String prefsFileName) {
@@ -72,7 +72,7 @@ public class Prefs {
 
     @SuppressWarnings("unchecked")
     public <T> T get(PrefsKey<T> key) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getPrefs();
         String name = key.getName();
         Type type = key.getTypeOfValue();
         T instance = null;
@@ -121,6 +121,12 @@ public class Prefs {
         return instance;
     }
 
+    private SharedPreferences getPrefs() {
+        return prefsFileName == null
+                ? PreferenceManager.getDefaultSharedPreferences(context)
+                : context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+    }
+
     // Visible for testing only
     static String stripJsonQuotesIfPresent(String str) {
         if (str == null) return str;
@@ -137,13 +143,12 @@ public class Prefs {
     }
 
     public <T> boolean contains(PrefsKey<T> key) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
-        return prefs.contains(key.getName());
+        return getPrefs().contains(key.getName());
     }
 
     @SuppressWarnings("unchecked")
     public <T> void put(PrefsKey<T> key, T value) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getPrefs();
         String name = key.getName();
         Type type = key.getTypeOfValue();
         Editor editor = prefs.edit();
@@ -180,13 +185,13 @@ public class Prefs {
      * @param key the key that was previously bound as an instance or a provider. If the key was not bound previously, nothing is done
      */
     public <T> void remove(PrefsKey<T> key) {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getPrefs();
         prefs.edit().remove(key.getName()).apply();
         for (EventListener listener : listeners) listener.onRemove(key);
     }
 
     public void clear() {
-        SharedPreferences prefs = context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getPrefs();
         prefs.edit().clear().apply();
     }
 }
