@@ -1,9 +1,9 @@
 # appscope
-An Android library implementing Service Locator pattern
+An Android library to access Android SharedPreferences in a TypeSafe manner.
 
 Examples:
 ```
-Prefs.init(context, new Gson()); // Initialize one-tine in your Application.onCreate() method
+SharedPrefs.init(context, new Gson()); // Initialize one-tine in your Application.onCreate() method
 private static final PrefsKey<String> COUNTRY_CODE = new PrefsKey("countryCode", String.class);
 Prefs.put(COUNTRY_CODE, "US"); // bind the key COUNTRY_CODE to the value "US"
 
@@ -11,9 +11,8 @@ Prefs.put(COUNTRY_CODE, "US"); // bind the key COUNTRY_CODE to the value "US"
 String country = Prefs.get(COUNTRY_CODE)  ==> Returns "US"
 ```
 
-In the example above, since the last constructor parameter (persist) of PrefsKey COUNTRY_CODE is true, the COUNTRY_CODE is persisted (in prefs) and usable across sessions.
-
 The type of the key can be any arbitrary type that the Gson instance can serialize/deserialize.
+If the type is a primitive or a String, the values are stored as is. For complex objects, the class is serialized as JSON and stored as String.
 
 # Use with Gradle
 add to your repositories
