@@ -70,11 +70,27 @@ public class Prefs {
         return context;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T get(PrefsKey<T> key) {
+        return getInternal(key.getName(), key.getTypeOfValue());
+    }
+
+    public <T> T get(String key, Class<T> keyClass) {
+        return getInternal(key, keyClass);
+    }
+
+    public <T> T get(PrefsKey<T> key, T defaultValue) {
+        return contains(key) ? get(key) : defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(String keyName, Class<T> keyClass, T defaultValue) {
+        boolean contains = getPrefs().contains(keyName);
+        return contains ? (T) getInternal(keyName, keyClass) : defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getInternal(String name, Type type) {
         SharedPreferences prefs = getPrefs();
-        String name = key.getName();
-        Type type = key.getTypeOfValue();
         T instance = null;
         try {
             if (prefs.contains(name)) {
@@ -138,19 +154,30 @@ public class Prefs {
         return str;
     }
 
-    public <T> T get(PrefsKey<T> key, T defaultValue) {
-        return contains(key) ? get(key) : defaultValue;
-    }
-
     public <T> boolean contains(PrefsKey<T> key) {
         return getPrefs().contains(key.getName());
     }
 
-    @SuppressWarnings("unchecked")
+    public <T> boolean contains(String keyName, Class<T> keyClass) {
+        return getPrefs().contains(keyName);
+    }
+
     public <T> void put(PrefsKey<T> key, T value) {
+        putInternal(key.getName(), key.getTypeOfValue(), value);
+        for (EventListener listener : listeners) listener.onPut(key, value);
+    }
+
+    public <T> void put(String keyName, Class<T> keyClass, T value) {
+        putInternal(keyName, keyClass, value);
+        if (!listeners.isEmpty()) {
+            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass);
+            for (EventListener listener : listeners) listener.onPut(key, value);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void putInternal(String name, Type type, T value) {
         SharedPreferences prefs = getPrefs();
-        String name = key.getName();
-        Type type = key.getTypeOfValue();
         Editor editor = prefs.edit();
         if (type == Boolean.class || type == boolean.class) {
             editor.putBoolean(name, (Boolean) value);
@@ -176,18 +203,31 @@ public class Prefs {
             editor.putString(name, json);
         }
         editor.apply();
-        for (EventListener listener : listeners) listener.onPut(key, value);
     }
 
     /**
-     * Removes a provider as well as any registered instances with this name
+     * Removes any registered instances with this name
      * @param <T> the type of the {@code TypedKey}
-     * @param key the key that was previously bound as an instance or a provider. If the key was not bound previously, nothing is done
+     * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
      */
     public <T> void remove(PrefsKey<T> key) {
         SharedPreferences prefs = getPrefs();
         prefs.edit().remove(key.getName()).apply();
         for (EventListener listener : listeners) listener.onRemove(key);
+    }
+
+    /**
+     * Removes any registered instances with this name
+     * @param <T> the type of the {@code TypedKey}
+     * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
+     */
+    public <T> void remove(String keyName, Class<T> keyClass) {
+        SharedPreferences prefs = getPrefs();
+        prefs.edit().remove(keyName).apply();
+        if (!listeners.isEmpty()) {
+            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass);
+            for (EventListener listener : listeners) listener.onRemove(key);
+        }
     }
 
     public void clear() {

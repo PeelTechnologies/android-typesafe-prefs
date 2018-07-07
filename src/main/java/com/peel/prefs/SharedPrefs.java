@@ -53,20 +53,40 @@ public class SharedPrefs {
         return prefs.get(key);
     }
 
+    public static <T> T get(String keyName, Class<T> keyClass) {
+        return prefs.get(keyName, keyClass);
+    }
+
     public static <T> T get(PrefsKey<T> key, T defaultValue) {
         return prefs.get(key, defaultValue);
+    }
+
+    public static <T> T get(String keyName, Class<T> keyClass, T defaultValue) {
+        return prefs.get(keyName, keyClass, defaultValue);
     }
 
     public static <T> boolean contains(PrefsKey<T> key) {
         return prefs.contains(key);
     }
 
+    public static <T> boolean contains(String keyName, Class<T> keyClass) {
+        return prefs.contains(keyName, keyClass);
+    }
+
     public static <T> void put(PrefsKey<T> key, T value) {
         prefs.put(key, value);
     }
 
+    public static <T> void put(String keyName, Class<T> keyClass, T value) {
+        prefs.put(keyName,  keyClass, value);
+    }
+
     public static <T> void remove(PrefsKey<T> key) {
         prefs.remove(key);
+    }
+
+    public static <T> void remove(String keyName, Class<T> keyClass) {
+        prefs.remove(keyName, keyClass);
     }
 
     public static void clear() {

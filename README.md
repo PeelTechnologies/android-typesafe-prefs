@@ -24,7 +24,7 @@ repositories {
 }
 ```
 
-In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.0.6"`
+In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.0.7"`
 
 # User Guide
 PrefsKey can take arbitrarily complex Java object that Gson can serialize/deserialize. For example, `PrefsKey<Customer>` may represent a class with nested fields for `Address`, name, phone numbers, etc.
