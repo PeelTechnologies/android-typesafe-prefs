@@ -30,24 +30,39 @@ public class PrefsKey<T> {
 
     private final String name;
     private final Type type;
+    private final boolean cacheableInMemory;
 
     /**
      * @param name Ensure that this name is Unique.
      * @param clazz the type of this key
      */
     public PrefsKey(String name, Class<T> clazz) {
+        this(name, clazz, true);
+    }
+
+    public PrefsKey(String name, Class<T> clazz, boolean cacheableInMemory) {
         this.name = name;
         this.type = clazz;
+        this.cacheableInMemory = cacheableInMemory;
     }
 
     /**
      * @param name Ensure that this name is unique across the preference file
      * @param type the type for this key
      */
-
     public PrefsKey(String name, TypeToken<T> type) {
+        this(name, type, true);
+    }
+    /**
+     * @param name Ensure that this name is unique across the preference file
+     * @param type the type for this key
+     * @param cacheableInMemory Whether this key can be stored in an in-memory cache
+     *   for faster access. If false, the key is loaded form disk on every access
+     */
+    public PrefsKey(String name, TypeToken<T> type, boolean cacheableInMemory) {
         this.name = name;
         this.type = type.getType();
+        this.cacheableInMemory = cacheableInMemory;
     }
 
     public String getName() {
@@ -56,6 +71,10 @@ public class PrefsKey<T> {
 
     public Type getTypeOfValue() {
         return type;
+    }
+
+    public boolean isCacheableInMemory() {
+        return cacheableInMemory;
     }
 
     @Override

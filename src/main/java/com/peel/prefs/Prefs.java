@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.util.LruCache;
 
 /**
  * This class provides type-safe access to Android preferences. Any arbitrary object
@@ -55,15 +56,18 @@ public class Prefs {
     private final Context context;
     private final Gson gson;
     private final String prefsFileName;
+    // Visible for testing only
+    final LruCache<String, Object> cache;
 
     public Prefs(Context context, Gson gson) {
-        this(context, gson, null);
+        this(context, gson, null, 25);
     }
 
-    public Prefs(Context context, Gson gson, String prefsFileName) {
+    public Prefs(Context context, Gson gson, String prefsFileName, int maxCacheSize) {
         this.context = context;
         this.gson = gson;
         this.prefsFileName = prefsFileName;
+        this.cache = new LruCache<>(maxCacheSize);
     }
 
     public Context context() {
@@ -91,41 +95,43 @@ public class Prefs {
     @SuppressWarnings("unchecked")
     private <T> T getInternal(String name, Type type) {
         SharedPreferences prefs = getPrefs();
-        T instance = null;
-        try {
-            if (prefs.contains(name)) {
-                if (type == Boolean.class || type == boolean.class) {
-                    boolean value = prefs.getBoolean(name, false);
-                    instance = (T) Boolean.valueOf(value);
-                } else if (type == String.class) {
-                    String str = prefs.getString(name, null);
-                    str = stripJsonQuotesIfPresent(str);
-                    instance = (T) str;
-                } else if (type == Integer.class || type == int.class) {
-                    int value = prefs.getInt(name, 0);
-                    instance = (T) Integer.valueOf((int)value);
-                } else if (type == Long.class || type == long.class) {
-                    long value = prefs.getLong(name, 0L);
-                    instance = (T) Long.valueOf((long)value);
-                } else if (type == Float.class || type == float.class) {
-                    float value = prefs.getFloat(name, 0f);
-                    instance = (T) Float.valueOf((float)value);
-                } else if (type == Double.class || type == double.class) {
-                    float value = prefs.getFloat(name, 0f);
-                    instance = (T) Double.valueOf((double)value);
-                } else if (type == Short.class || type == short.class) {
-                    int value = prefs.getInt(name, 0);
-                    instance = (T) Short.valueOf((short)value);
-                } else if (type == Byte.class || type == byte.class) {
-                    int value = prefs.getInt(name, 0);
-                    instance = (T) Byte.valueOf((byte)value);
-                } else if (type.equals(STRING_SET_TYPE)) {
-                    Set<String> value = prefs.getStringSet(name, null);
-                    instance = (T) value;
+        T instance = (T) cache.get(name);
+        if (instance == null) {
+            try {
+                if (prefs.contains(name)) {
+                    if (type == Boolean.class || type == boolean.class) {
+                        boolean value = prefs.getBoolean(name, false);
+                        instance = (T) Boolean.valueOf(value);
+                    } else if (type == String.class) {
+                        String str = prefs.getString(name, null);
+                        str = stripJsonQuotesIfPresent(str);
+                        instance = (T) str;
+                    } else if (type == Integer.class || type == int.class) {
+                        int value = prefs.getInt(name, 0);
+                        instance = (T) Integer.valueOf((int)value);
+                    } else if (type == Long.class || type == long.class) {
+                        long value = prefs.getLong(name, 0L);
+                        instance = (T) Long.valueOf((long)value);
+                    } else if (type == Float.class || type == float.class) {
+                        float value = prefs.getFloat(name, 0f);
+                        instance = (T) Float.valueOf((float)value);
+                    } else if (type == Double.class || type == double.class) {
+                        float value = prefs.getFloat(name, 0f);
+                        instance = (T) Double.valueOf((double)value);
+                    } else if (type == Short.class || type == short.class) {
+                        int value = prefs.getInt(name, 0);
+                        instance = (T) Short.valueOf((short)value);
+                    } else if (type == Byte.class || type == byte.class) {
+                        int value = prefs.getInt(name, 0);
+                        instance = (T) Byte.valueOf((byte)value);
+                    } else if (type.equals(STRING_SET_TYPE)) {
+                        Set<String> value = prefs.getStringSet(name, null);
+                        instance = (T) value;
+                    }
                 }
+            } catch (ClassCastException ignored) {
+                // This can happen if the integer was previously stored as String
             }
-        } catch (ClassCastException ignored) {
-            // This can happen if the integer was previously stored as String
         }
         if (instance == null) {
             String json = prefs.getString(name, null);
@@ -155,7 +161,8 @@ public class Prefs {
     }
 
     public <T> boolean contains(PrefsKey<T> key) {
-        return getPrefs().contains(key.getName());
+        String name = key.getName();
+        return cache.get(name) != null || getPrefs().contains(name);
     }
 
     public <T> boolean contains(String keyName, Class<T> keyClass) {
@@ -163,20 +170,21 @@ public class Prefs {
     }
 
     public <T> void put(PrefsKey<T> key, T value) {
-        putInternal(key.getName(), key.getTypeOfValue(), value);
+        putInternal(key.getName(), key.getTypeOfValue(), value, key.isCacheableInMemory());
         for (EventListener listener : listeners) listener.onPut(key, value);
     }
 
     public <T> void put(String keyName, Class<T> keyClass, T value) {
-        putInternal(keyName, keyClass, value);
+        putInternal(keyName, keyClass, value, false);
         if (!listeners.isEmpty()) {
-            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass);
+            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
             for (EventListener listener : listeners) listener.onPut(key, value);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void putInternal(String name, Type type, T value) {
+    private <T> void putInternal(String name, Type type, T value, boolean cacheable) {
+        if (cacheable) cache.put(name, value);
         SharedPreferences prefs = getPrefs();
         Editor editor = prefs.edit();
         if (type == Boolean.class || type == boolean.class) {
@@ -211,8 +219,10 @@ public class Prefs {
      * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
      */
     public <T> void remove(PrefsKey<T> key) {
+        String keyName = key.getName();
+        cache.remove(keyName);
         SharedPreferences prefs = getPrefs();
-        prefs.edit().remove(key.getName()).apply();
+        prefs.edit().remove(keyName).apply();
         for (EventListener listener : listeners) listener.onRemove(key);
     }
 
@@ -222,15 +232,17 @@ public class Prefs {
      * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
      */
     public <T> void remove(String keyName, Class<T> keyClass) {
+        cache.remove(keyName);
         SharedPreferences prefs = getPrefs();
         prefs.edit().remove(keyName).apply();
         if (!listeners.isEmpty()) {
-            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass);
+            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
             for (EventListener listener : listeners) listener.onRemove(key);
         }
     }
 
-    public void clear() {
+    public synchronized void clear() {
+        cache.evictAll();
         SharedPreferences prefs = getPrefs();
         prefs.edit().clear().apply();
     }

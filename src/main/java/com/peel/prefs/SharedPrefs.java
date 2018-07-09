@@ -33,8 +33,8 @@ public class SharedPrefs {
         prefs = new Prefs(context, gson);
     }
 
-    public static void init(Context context, Gson gson, String prefsFileName) {
-        prefs = new Prefs(context, gson, prefsFileName);
+    public static void init(Context context, Gson gson, String prefsFileName, int maxCacheSize) {
+        prefs = new Prefs(context, gson, prefsFileName, maxCacheSize);
     }
 
     public static void addListener(EventListener listener) {
@@ -45,7 +45,7 @@ public class SharedPrefs {
         prefs.removeListener(listener);
     }
 
-    public Context context() {
+    public static Context context() {
         return prefs.context();
     }
 

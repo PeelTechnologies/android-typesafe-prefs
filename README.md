@@ -24,24 +24,26 @@ repositories {
 }
 ```
 
-In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.0.7"`
+In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.0.8"`
 
 # User Guide
 PrefsKey can take arbitrarily complex Java object that Gson can serialize/deserialize. For example, `PrefsKey<Customer>` may represent a class with nested fields for `Address`, name, phone numbers, etc.
 
 `SharedPrefs` class uses the default preferences file for the context to store properties. If you want to use a a different file, specify it during initialization:
 ```
-SharedPrefs.init(context, gson, "my-custom-preferences-file-name");
+SharedPrefs.init(context, gson, "my-custom-preferences-file-name", 25);
 ```
+Note that 25 is the size of the in-memory cache for faster access of prefs.
+
 `SharedPrefs` is a static singleton class for `Prefs` with convenience methods named `put` and `get`. For non-static access, use the `Prefs` class directly:
 ```
-Prefs prefs = new Prefs(context, gson, prefsFileName);
+Prefs prefs = new Prefs(context, gson, prefsFileName, 25);
 PrefsKey<CountryCode> key = new PrefsKey<>("countryCode", CountryCode.class);
 prefs.put(key, CountryCode.US);
 CountryCode country = prefs.get(key);
 ```
 Since `Prefs` class is non-static, you can create multiple instances to manage different preferences files.
 ```
-Prefs prefs1 = new Prefs(context, gson, "user-preferences");
-Prefs prefs2 = new Prefs(context, gson, "app-configuration");
+Prefs prefs1 = new Prefs(context, gson, "user-preferences", 10);
+Prefs prefs2 = new Prefs(context, gson, "app-configuration", 5);
 ```

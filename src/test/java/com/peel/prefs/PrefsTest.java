@@ -94,7 +94,7 @@ public class PrefsTest {
 
     @Test
     public void testCustomPrefFile() {
-        prefs = new Prefs(context, gson, "my_props_file");
+        prefs = new Prefs(context, gson, "my_props_file", 10);
         SharedPreferences persistPrefs = AndroidFixtures.createMockSharedPreferences(context, null);
         Mockito.when(context.getSharedPreferences("my_props_file", Context.MODE_PRIVATE)).thenReturn(persistPrefs);
 
