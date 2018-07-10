@@ -30,11 +30,15 @@ public class SharedPrefs {
     private static Prefs prefs;
 
     public static void init(Context context, Gson gson) {
-        prefs = new Prefs(context, gson);
+        init(new Prefs(context, gson));
     }
 
     public static void init(Context context, Gson gson, String prefsFileName, int maxCacheSize) {
-        prefs = new Prefs(context, gson, prefsFileName, maxCacheSize);
+        init(new Prefs(context, gson, prefsFileName, maxCacheSize));
+    }
+
+    public static void init(Prefs prefs) {
+        SharedPrefs.prefs = prefs;
     }
 
     public static void addListener(EventListener listener) {
