@@ -31,6 +31,7 @@ public class PrefsKey<T> {
     private final String name;
     private final Type type;
     private final boolean cacheableInMemory;
+    private final String[] tags;
 
     /**
      * @param name Ensure that this name is Unique.
@@ -40,10 +41,15 @@ public class PrefsKey<T> {
         this(name, clazz, true);
     }
 
-    public PrefsKey(String name, Class<T> clazz, boolean cacheableInMemory) {
+    public PrefsKey(String name, Class<T> clazz, String... tags) {
+        this(name, clazz, true, tags);
+    }
+
+    public PrefsKey(String name, Class<T> clazz, boolean cacheableInMemory, String... tags) {
         this.name = name;
         this.type = clazz;
         this.cacheableInMemory = cacheableInMemory;
+        this.tags = tags;
     }
 
     /**
@@ -53,16 +59,22 @@ public class PrefsKey<T> {
     public PrefsKey(String name, TypeToken<T> type) {
         this(name, type, true);
     }
+
+    public PrefsKey(String name, TypeToken<T> type, String... tags) {
+        this(name, type, true, tags);
+    }
+
     /**
      * @param name Ensure that this name is unique across the preference file
      * @param type the type for this key
      * @param cacheableInMemory Whether this key can be stored in an in-memory cache
      *   for faster access. If false, the key is loaded form disk on every access
      */
-    public PrefsKey(String name, TypeToken<T> type, boolean cacheableInMemory) {
+    public PrefsKey(String name, TypeToken<T> type, boolean cacheableInMemory, String... tags) {
         this.name = name;
         this.type = type.getType();
         this.cacheableInMemory = cacheableInMemory;
+        this.tags = tags;
     }
 
     public String getName() {
@@ -75,6 +87,16 @@ public class PrefsKey<T> {
 
     public boolean isCacheableInMemory() {
         return cacheableInMemory;
+    }
+
+    public boolean containsTag(String tagName) {
+        if (tags == null) return false;
+        for (String tag : tags) {
+            if (tag.equals(tagName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

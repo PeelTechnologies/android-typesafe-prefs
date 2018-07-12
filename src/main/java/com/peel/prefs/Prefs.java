@@ -220,10 +220,14 @@ public class Prefs {
      */
     public <T> void remove(PrefsKey<T> key) {
         String keyName = key.getName();
-        cache.remove(keyName);
+        boolean wasPresent = cache.get(keyName) != null;
         SharedPreferences prefs = getPrefs();
-        prefs.edit().remove(keyName).apply();
-        for (EventListener listener : listeners) listener.onRemove(key);
+        wasPresent = wasPresent || prefs.contains(keyName);
+        if (wasPresent) {
+            cache.remove(keyName);
+            prefs.edit().remove(keyName).apply();
+            for (EventListener listener : listeners) listener.onRemove(key);
+        }
     }
 
     /**
@@ -232,12 +236,16 @@ public class Prefs {
      * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
      */
     public <T> void remove(String keyName, Class<T> keyClass) {
-        cache.remove(keyName);
+        boolean wasPresent = cache.get(keyName) != null;
         SharedPreferences prefs = getPrefs();
-        prefs.edit().remove(keyName).apply();
-        if (!listeners.isEmpty()) {
-            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
-            for (EventListener listener : listeners) listener.onRemove(key);
+        wasPresent = wasPresent || prefs.contains(keyName);
+        if (wasPresent) {
+            cache.remove(keyName);
+            prefs.edit().remove(keyName).apply();
+            if (!listeners.isEmpty()) {
+                PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
+                for (EventListener listener : listeners) listener.onRemove(key);
+            }
         }
     }
 
