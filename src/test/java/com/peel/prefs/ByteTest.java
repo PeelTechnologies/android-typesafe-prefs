@@ -55,44 +55,44 @@ public class ByteTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", byte.class), (byte)1);
+        prefs.put(new TypedKey<>("key", byte.class), (byte)1);
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Byte.class), new Byte((byte)1));
+        prefs.put(new TypedKey<>("key", Byte.class), new Byte((byte)1));
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", byte.class)));
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", Byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", Byte.class)));
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", byte.class)));
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", Byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", Byte.class)));
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"1\"").apply();
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", Byte.class)));
-        assertEquals(1, (byte) prefs.get(new PrefsKey<>("key", byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", Byte.class)));
+        assertEquals(1, (byte) prefs.get(new TypedKey<>("key", byte.class)));
     }
 }

@@ -55,7 +55,7 @@ public class PrefsTest {
 
     @Test
     public void booleanDefaultValueOnGet() {
-        PrefsKey<Boolean> testKey = new PrefsKey<>("testKey", Boolean.class);
+        TypedKey<Boolean> testKey = new TypedKey<>("testKey", Boolean.class);
         prefs.remove(testKey);
         assertFalse(prefs.get(testKey));
         prefs.put(testKey, true);
@@ -65,7 +65,7 @@ public class PrefsTest {
 
     @Test
     public void testPut() {
-        PrefsKey<String> key = new PrefsKey<>("userId", String.class);
+        TypedKey<String> key = new TypedKey<>("userId", String.class);
         assertNull(prefs.get(key));
         prefs.put(key, "19999999999");
         assertNotNull(prefs.get(key));
@@ -74,7 +74,7 @@ public class PrefsTest {
 
     @Test
     public void testClear() {
-        PrefsKey<String> key = new PrefsKey<>("userId", String.class);
+        TypedKey<String> key = new TypedKey<>("userId", String.class);
         prefs.put(key, "a");
         assertEquals("a", prefs.get(key));
         prefs.clear();
@@ -98,7 +98,7 @@ public class PrefsTest {
         SharedPreferences persistPrefs = AndroidFixtures.createMockSharedPreferences(context, null);
         Mockito.when(context.getSharedPreferences("my_props_file", Context.MODE_PRIVATE)).thenReturn(persistPrefs);
 
-        PrefsKey<String> key = new PrefsKey<>("key", String.class);
+        TypedKey<String> key = new TypedKey<>("key", String.class);
         assertNull(prefs.get(key));
         prefs.put(key, "19999999999");
         assertNotNull(prefs.get(key));

@@ -55,44 +55,44 @@ public class ShortTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", short.class), (short)1);
+        prefs.put(new TypedKey<>("key", short.class), (short)1);
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Short.class), new Short((short)1));
+        prefs.put(new TypedKey<>("key", Short.class), new Short((short)1));
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", short.class)));
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", Short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", Short.class)));
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", short.class)));
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", Short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", Short.class)));
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"1\"").apply();
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", Short.class)));
-        assertEquals(1, (short) prefs.get(new PrefsKey<>("key", short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", Short.class)));
+        assertEquals(1, (short) prefs.get(new TypedKey<>("key", short.class)));
     }
 }

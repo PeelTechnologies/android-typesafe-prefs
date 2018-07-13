@@ -56,44 +56,44 @@ public class DoubleTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", double.class), 1.1d);
+        prefs.put(new TypedKey<>("key", double.class), 1.1d);
         assertEquals(1.1d, (double) persistPrefs.getFloat("key", 0f), TOLERANCE);
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Double.class), new Double((double)1.1d));
+        prefs.put(new TypedKey<>("key", Double.class), new Double((double)1.1d));
         assertEquals(1.1d, (double) persistPrefs.getFloat("key", 0), TOLERANCE);
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putFloat("key", 1.1f).apply();
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", double.class)), TOLERANCE);
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putFloat("key", 1.1f).apply();
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", Double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", Double.class)), TOLERANCE);
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "1.1").apply();
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", double.class)), TOLERANCE);
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "1.1").apply();
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", Double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", Double.class)), TOLERANCE);
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"1.1\"").apply();
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", Double.class)), TOLERANCE);
-        assertEquals(1.1d, (double) prefs.get(new PrefsKey<>("key", double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", Double.class)), TOLERANCE);
+        assertEquals(1.1d, (double) prefs.get(new TypedKey<>("key", double.class)), TOLERANCE);
     }
 }

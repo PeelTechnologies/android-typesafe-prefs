@@ -55,44 +55,44 @@ public class IntegerTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", int.class), 1);
+        prefs.put(new TypedKey<>("key", int.class), 1);
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Integer.class), 1);
+        prefs.put(new TypedKey<>("key", Integer.class), 1);
         assertEquals(1, persistPrefs.getInt("key", 0));
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", Integer.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", Integer.class)));
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putInt("key", 1).apply();
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", Integer.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", Integer.class)));
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", Integer.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", Integer.class)));
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "1").apply();
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", Integer.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", Integer.class)));
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"1\"").apply();
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", Integer.class)));
-        assertEquals(1, (int) prefs.get(new PrefsKey<>("key", int.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", Integer.class)));
+        assertEquals(1, (int) prefs.get(new TypedKey<>("key", int.class)));
     }
 }

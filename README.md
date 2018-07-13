@@ -4,7 +4,7 @@ An Android library to access Android SharedPreferences in a TypeSafe manner.
 Example:
 ```
 SharedPrefs.init(context, new Gson()); // Initialize one-tine in your Application.onCreate() method
-private static final PrefsKey<String> COUNTRY_CODE = new PrefsKey("countryCode", String.class);
+private static final TypedKey<String> COUNTRY_CODE = new TypedKey("countryCode", String.class);
 SharedPrefs.put(COUNTRY_CODE, "US"); // bind the key COUNTRY_CODE to the value "US"
 
 .... // Anywhere in app
@@ -24,10 +24,10 @@ repositories {
 }
 ```
 
-In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.1.0"`
+In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.1.1"`
 
 # User Guide
-PrefsKey can take arbitrarily complex Java object that Gson can serialize/deserialize. For example, `PrefsKey<Customer>` may represent a class with nested fields for `Address`, name, phone numbers, etc.
+TypedKey can take arbitrarily complex Java object that Gson can serialize/deserialize. For example, `TypedKey<Customer>` may represent a class with nested fields for `Address`, name, phone numbers, etc.
 
 `SharedPrefs` class uses the default preferences file for the context to store properties. If you want to use a a different file, specify it during initialization:
 ```
@@ -38,7 +38,7 @@ Note that 25 is the size of the in-memory cache for faster access of prefs.
 `SharedPrefs` is a static singleton class for `Prefs` with convenience methods named `put` and `get`. For non-static access, use the `Prefs` class directly:
 ```
 Prefs prefs = new Prefs(context, gson, prefsFileName, 25);
-PrefsKey<CountryCode> key = new PrefsKey<>("countryCode", CountryCode.class);
+TypedKey<CountryCode> key = new TypedKey<>("countryCode", CountryCode.class);
 prefs.put(key, CountryCode.US);
 CountryCode country = prefs.get(key);
 ```

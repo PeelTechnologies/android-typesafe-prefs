@@ -56,47 +56,47 @@ public class BooleanTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", boolean.class), true);
+        prefs.put(new TypedKey<>("key", boolean.class), true);
         assertTrue(persistPrefs.getBoolean("key", false));
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Boolean.class), true);
+        prefs.put(new TypedKey<>("key", Boolean.class), true);
         assertTrue(persistPrefs.getBoolean("key", false));
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putBoolean("key", true).apply();
-        assertTrue(prefs.get(new PrefsKey<>("key", boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", boolean.class)));
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putBoolean("key", Boolean.TRUE).apply();
-        assertTrue(prefs.get(new PrefsKey<>("key", Boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", Boolean.class)));
 
         persistPrefs.edit().putBoolean("key", false).apply();
-        assertFalse(prefs.get(new PrefsKey<>("key", Boolean.class)));
+        assertFalse(prefs.get(new TypedKey<>("key", Boolean.class)));
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "true").apply();
-        assertTrue(prefs.get(new PrefsKey<>("key", boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", boolean.class)));
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "true").apply();
-        assertTrue(prefs.get(new PrefsKey<>("key", Boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", Boolean.class)));
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"true\"").apply();
-        assertTrue(prefs.get(new PrefsKey<>("key", Boolean.class)));
-        assertTrue(prefs.get(new PrefsKey<>("key", boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", Boolean.class)));
+        assertTrue(prefs.get(new TypedKey<>("key", boolean.class)));
     }
 }

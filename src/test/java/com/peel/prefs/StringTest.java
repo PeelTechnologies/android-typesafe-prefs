@@ -55,19 +55,19 @@ public class StringTest {
 
     @Test
     public void store() {
-        prefs.put(new PrefsKey<>("key", String.class), "abcd");
+        prefs.put(new TypedKey<>("key", String.class), "abcd");
         assertEquals("abcd", persistPrefs.getString("key", null));
     }
 
     @Test
     public void restore() {
         persistPrefs.edit().putString("key", "abcd").apply();
-        assertEquals("abcd", prefs.get(new PrefsKey<>("key", String.class)));
+        assertEquals("abcd", prefs.get(new TypedKey<>("key", String.class)));
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", new Gson().toJson("abcd")).apply();
-        assertEquals("abcd", prefs.get(new PrefsKey<>("key", String.class)));
+        assertEquals("abcd", prefs.get(new TypedKey<>("key", String.class)));
     }
 }

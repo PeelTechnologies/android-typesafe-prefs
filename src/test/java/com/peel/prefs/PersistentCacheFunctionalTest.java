@@ -51,14 +51,14 @@ public class PersistentCacheFunctionalTest {
         context = AndroidFixtures.createMockContext();
         Prefs prefs = new Prefs(context, gson, null, 2);
         for (int i = 0; i < 20; ++i) {
-            PrefsKey<Boolean> key = new PrefsKey<>("key" + i, Boolean.class);
+            TypedKey<Boolean> key = new TypedKey<>("key" + i, Boolean.class);
             prefs.put(key, true);
         }
         // Even though we stored 20 persistent properties, only 2 remain in memory
         assertEquals(2, prefs.cache.size());
         // Even though only 2 are available in cache, all of them are restored from prefs
         for (int i = 0; i < 20; ++i) {
-            PrefsKey<Boolean> key = new PrefsKey<>("key" + i, Boolean.class);
+            TypedKey<Boolean> key = new TypedKey<>("key" + i, Boolean.class);
             assertTrue(prefs.get(key));
         }
     }

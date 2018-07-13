@@ -56,44 +56,44 @@ public class FloatTest {
 
     @Test
     public void primitiveStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", float.class), 1.1f);
+        prefs.put(new TypedKey<>("key", float.class), 1.1f);
         assertEquals(1.1f, (float) persistPrefs.getFloat("key", 0f), TOLERANCE);
     }
 
     @Test
     public void primitiveWrapperStoredAsNumber() {
-        prefs.put(new PrefsKey<>("key", Float.class), new Float((float)1.1f));
+        prefs.put(new TypedKey<>("key", Float.class), new Float((float)1.1f));
         assertEquals(1.1f, persistPrefs.getFloat("key", 0), TOLERANCE);
     }
 
     @Test
     public void restoreToPrimitive() {
         persistPrefs.edit().putFloat("key", 1.1f).apply();
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", float.class)), TOLERANCE);
     }
 
     @Test
     public void restoreToPrimitiveWrapper() {
         persistPrefs.edit().putFloat("key", 1.1f).apply();
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", Float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", Float.class)), TOLERANCE);
     }
 
     @Test
     public void restoreStringToPrimitive() {
         persistPrefs.edit().putString("key", "1.1").apply();
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", float.class)), TOLERANCE);
     }
 
     @Test
     public void restoreStringToPrimitiveWrapper() {
         persistPrefs.edit().putString("key", "1.1").apply();
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", Float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", Float.class)), TOLERANCE);
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "\"1.1\"").apply();
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", Float.class)), TOLERANCE);
-        assertEquals(1.1f, (float) prefs.get(new PrefsKey<>("key", float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", Float.class)), TOLERANCE);
+        assertEquals(1.1f, (float) prefs.get(new TypedKey<>("key", float.class)), TOLERANCE);
     }
 }

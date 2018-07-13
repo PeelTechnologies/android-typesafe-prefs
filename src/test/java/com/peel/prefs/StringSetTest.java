@@ -61,7 +61,7 @@ public class StringSetTest {
     @Test
     public void store() {
         Set<String> values = Collections.singleton("abcd");
-        prefs.put(new PrefsKey<>("key", stringSetType), values);
+        prefs.put(new TypedKey<>("key", stringSetType), values);
         assertEquals("abcd", persistPrefs.getStringSet("key", null).iterator().next());
     }
 
@@ -70,12 +70,12 @@ public class StringSetTest {
         Set<String> values = Collections.singleton("abcd");
         System.out.println("Values: " + persistPrefs.getStringSet("key", null));
         persistPrefs.edit().putStringSet("key", values).apply();
-        assertEquals("abcd", prefs.get(new PrefsKey<>("key", stringSetType)).iterator().next());
+        assertEquals("abcd", prefs.get(new TypedKey<>("key", stringSetType)).iterator().next());
     }
 
     @Test
     public void restoreFromJson() {
         persistPrefs.edit().putString("key", "[\"abcd\"]").apply();
-        assertEquals("abcd", prefs.get(new PrefsKey<>("key", stringSetType)).iterator().next());
+        assertEquals("abcd", prefs.get(new TypedKey<>("key", stringSetType)).iterator().next());
     }
 }

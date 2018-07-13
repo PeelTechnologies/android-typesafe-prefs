@@ -40,8 +40,8 @@ public class Prefs {
     private static final Type STRING_SET_TYPE = new TypeToken<Set<String>>() {}.getType();
 
     public interface EventListener {
-        <T> void onPut(PrefsKey<T> key, T value);
-        <T> void onRemove(PrefsKey<T> key);
+        <T> void onPut(TypedKey<T> key, T value);
+        <T> void onRemove(TypedKey<T> key);
     }
     private final List<EventListener> listeners = new ArrayList<>();
 
@@ -74,7 +74,7 @@ public class Prefs {
         return context;
     }
 
-    public <T> T get(PrefsKey<T> key) {
+    public <T> T get(TypedKey<T> key) {
         return getInternal(key.getName(), key.getTypeOfValue());
     }
 
@@ -82,7 +82,7 @@ public class Prefs {
         return getInternal(key, keyClass);
     }
 
-    public <T> T get(PrefsKey<T> key, T defaultValue) {
+    public <T> T get(TypedKey<T> key, T defaultValue) {
         return contains(key) ? get(key) : defaultValue;
     }
 
@@ -160,7 +160,7 @@ public class Prefs {
         return str;
     }
 
-    public <T> boolean contains(PrefsKey<T> key) {
+    public <T> boolean contains(TypedKey<T> key) {
         String name = key.getName();
         return cache.get(name) != null || getPrefs().contains(name);
     }
@@ -169,7 +169,7 @@ public class Prefs {
         return getPrefs().contains(keyName);
     }
 
-    public <T> void put(PrefsKey<T> key, T value) {
+    public <T> void put(TypedKey<T> key, T value) {
         putInternal(key.getName(), key.getTypeOfValue(), value, key.isCacheableInMemory());
         for (EventListener listener : listeners) listener.onPut(key, value);
     }
@@ -177,7 +177,7 @@ public class Prefs {
     public <T> void put(String keyName, Class<T> keyClass, T value) {
         putInternal(keyName, keyClass, value, false);
         if (!listeners.isEmpty()) {
-            PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
+            TypedKey<T> key = new TypedKey<>(keyName, keyClass, false);
             for (EventListener listener : listeners) listener.onPut(key, value);
         }
     }
@@ -218,7 +218,7 @@ public class Prefs {
      * @param <T> the type of the {@code TypedKey}
      * @param key the key that was previously bound as an instance. If the key was not bound previously, nothing is done
      */
-    public <T> void remove(PrefsKey<T> key) {
+    public <T> void remove(TypedKey<T> key) {
         String keyName = key.getName();
         boolean wasPresent = cache.get(keyName) != null;
         SharedPreferences prefs = getPrefs();
@@ -243,7 +243,7 @@ public class Prefs {
             cache.remove(keyName);
             prefs.edit().remove(keyName).apply();
             if (!listeners.isEmpty()) {
-                PrefsKey<T> key = new PrefsKey<>(keyName, keyClass, false);
+                TypedKey<T> key = new TypedKey<>(keyName, keyClass, false);
                 for (EventListener listener : listeners) listener.onRemove(key);
             }
         }

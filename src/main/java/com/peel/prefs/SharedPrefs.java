@@ -53,7 +53,7 @@ public class SharedPrefs {
         return prefs.context();
     }
 
-    public static <T> T get(PrefsKey<T> key) {
+    public static <T> T get(TypedKey<T> key) {
         return prefs.get(key);
     }
 
@@ -61,7 +61,7 @@ public class SharedPrefs {
         return prefs.get(keyName, keyClass);
     }
 
-    public static <T> T get(PrefsKey<T> key, T defaultValue) {
+    public static <T> T get(TypedKey<T> key, T defaultValue) {
         return prefs.get(key, defaultValue);
     }
 
@@ -69,7 +69,7 @@ public class SharedPrefs {
         return prefs.get(keyName, keyClass, defaultValue);
     }
 
-    public static <T> boolean contains(PrefsKey<T> key) {
+    public static <T> boolean contains(TypedKey<T> key) {
         return prefs.contains(key);
     }
 
@@ -77,7 +77,7 @@ public class SharedPrefs {
         return prefs.contains(keyName, keyClass);
     }
 
-    public static <T> void put(PrefsKey<T> key, T value) {
+    public static <T> void put(TypedKey<T> key, T value) {
         prefs.put(key, value);
     }
 
@@ -85,7 +85,7 @@ public class SharedPrefs {
         prefs.put(keyName,  keyClass, value);
     }
 
-    public static <T> void remove(PrefsKey<T> key) {
+    public static <T> void remove(TypedKey<T> key) {
         prefs.remove(key);
     }
 
