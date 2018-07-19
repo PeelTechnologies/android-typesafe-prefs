@@ -17,6 +17,7 @@ package com.peel.prefs;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,14 @@ public class BooleanTest {
             }
         });
         prefs = new Prefs(context, gson);
+    }
+
+    @Test
+    public void containsOnNonExistentKey() {
+        if (prefs.contains("key", boolean.class)) {
+            fail();
+        }
+        assertFalse(prefs.get("key", boolean.class));
     }
 
     @Test

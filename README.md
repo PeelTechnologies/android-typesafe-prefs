@@ -24,7 +24,7 @@ repositories {
 }
 ```
 
-In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.1.1"`
+In your app build.gradle, add:  `compile "com.github.PeelTechnologies:android-typesafe-prefs:1.1.2"`
 
 # User Guide
 TypedKey can take arbitrarily complex Java object that Gson can serialize/deserialize. For example, `TypedKey<Customer>` may represent a class with nested fields for `Address`, name, phone numbers, etc.

@@ -137,7 +137,7 @@ public class Prefs {
             String json = prefs.getString(name, null);
             instance = gson.fromJson(json, type);
         }
-        if (instance == null && type == Boolean.class) {
+        if (instance == null && (type == Boolean.class || type == boolean.class)) {
             return (T) Boolean.FALSE; // default value for Boolean to avoid NPE for flags
         }
         return instance;
