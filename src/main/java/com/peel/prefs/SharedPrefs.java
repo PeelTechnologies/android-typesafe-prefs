@@ -15,6 +15,8 @@
  */
 package com.peel.prefs;
 
+import java.util.Set;
+
 import com.google.gson.Gson;
 import com.peel.prefs.Prefs.EventListener;
 
@@ -67,6 +69,10 @@ public class SharedPrefs {
 
     public static <T> T get(String keyName, Class<T> keyClass, T defaultValue) {
         return prefs.get(keyName, keyClass, defaultValue);
+    }
+
+    public Set<String> keySet() {
+        return prefs.keySet();
     }
 
     public static <T> boolean contains(TypedKey<T> key) {
