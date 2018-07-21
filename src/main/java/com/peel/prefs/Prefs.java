@@ -86,6 +86,10 @@ public class Prefs {
         return contains(key) ? get(key) : defaultValue;
     }
 
+    public Set<String> keySet() {
+        return getPrefs().getAll().keySet();
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T get(String keyName, Class<T> keyClass, T defaultValue) {
         boolean contains = getPrefs().contains(keyName);
