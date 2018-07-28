@@ -43,12 +43,19 @@ public class AndroidFixtures {
         return createMockContext(null);
     }
 
-    public static Context createMockContext(PrefsListener listener) {
+    public static Context createMockContext(PrefsListener listener, String... prefsFileNames) {
         Context context = Mockito.mock(Context.class);
-        SharedPreferences persistPrefs = createMockSharedPreferences(context, listener);
         PowerMockito.mockStatic(PreferenceManager.class);
-        Mockito.when(PreferenceManager.getDefaultSharedPreferences(context)).thenReturn(persistPrefs);
-        if (listener != null) listener.onInit(persistPrefs);
+        SharedPreferences defaultPrefs = createMockSharedPreferences(context, listener);
+        Mockito.when(PreferenceManager.getDefaultSharedPreferences(context)).thenReturn(defaultPrefs);
+        if (listener != null) listener.onInit(defaultPrefs);
+        if (prefsFileNames != null) {
+            for (String prefsFileName : prefsFileNames) {
+                SharedPreferences prefs = createMockSharedPreferences(context, listener);
+                Mockito.when(context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)).thenReturn(prefs);
+                if (listener != null) listener.onInit(prefs);
+            }
+        }
         return context;
     }
 

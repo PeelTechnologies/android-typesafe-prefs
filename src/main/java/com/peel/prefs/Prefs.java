@@ -18,6 +18,7 @@ package com.peel.prefs;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -46,10 +47,12 @@ public class Prefs {
     private final List<EventListener> listeners = new ArrayList<>();
 
     public void addListener(EventListener listener) {
+        Objects.requireNonNull(listener);
         listeners.add(listener);
     }
 
     public void removeListener(EventListener listener) {
+        Objects.requireNonNull(listener);
         listeners.remove(listener);
     }
 
@@ -72,6 +75,10 @@ public class Prefs {
 
     public Context context() {
         return context;
+    }
+
+    public String getPrefsFileName() {
+    	return prefsFileName;
     }
 
     public <T> T get(TypedKey<T> key) {

@@ -16,6 +16,8 @@
 package com.peel.prefs;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -32,6 +34,7 @@ public class TypedKey<T> {
     private final Type type;
     private final boolean cacheableInMemory;
     private final String[] tags;
+	private final String prefsFileName;
 
     /**
      * @param name Ensure that this name is Unique.
@@ -46,8 +49,13 @@ public class TypedKey<T> {
     }
 
     public TypedKey(String name, Class<T> clazz, boolean cacheableInMemory, String... tags) {
+        this(name, clazz, null, cacheableInMemory, tags);
+    }
+
+    public TypedKey(String name, Class<T> clazz, String prefsFileName, boolean cacheableInMemory, String... tags) {
         this.name = name;
         this.type = clazz;
+        this.prefsFileName = prefsFileName;
         this.cacheableInMemory = cacheableInMemory;
         this.tags = tags;
     }
@@ -57,21 +65,25 @@ public class TypedKey<T> {
      * @param type the type for this key
      */
     public TypedKey(String name, TypeToken<T> type) {
-        this(name, type, true);
+        this(name, type, null, true);
     }
 
     public TypedKey(String name, TypeToken<T> type, String... tags) {
-        this(name, type, true, tags);
+        this(name, type, null, true, tags);
     }
 
     /**
      * @param name Ensure that this name is unique across the preference file
      * @param type the type for this key
+     * @param prefsFileName the name of the prefs file where this key will be stored. For example, config_props
+     *   will be stored in /data/data/<app-package-name>/shared_prefs/config_props.xml
      * @param cacheableInMemory Whether this key can be stored in an in-memory cache
      *   for faster access. If false, the key is loaded form disk on every access
+     * @param tags any additional tags to associate with this key
      */
-    public TypedKey(String name, TypeToken<T> type, boolean cacheableInMemory, String... tags) {
+    public TypedKey(String name, TypeToken<T> type, String prefsFileName, boolean cacheableInMemory, String... tags) {
         this.name = name;
+        this.prefsFileName = prefsFileName;
         this.type = type.getType();
         this.cacheableInMemory = cacheableInMemory;
         this.tags = tags;
@@ -83,6 +95,10 @@ public class TypedKey<T> {
 
     public Type getTypeOfValue() {
         return type;
+    }
+
+    public String getPrefsFileName() {
+        return prefsFileName;
     }
 
     public boolean isCacheableInMemory() {
@@ -97,6 +113,11 @@ public class TypedKey<T> {
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterable<String> tags() {
+        return tags == null ? Collections.EMPTY_LIST : Arrays.asList(tags);
     }
 
     @Override

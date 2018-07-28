@@ -15,6 +15,9 @@
  */
 package com.peel.prefs;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -23,13 +26,16 @@ import com.peel.prefs.Prefs.EventListener;
 import android.content.Context;
 
 /**
- * This class provides type-safe access to Android preferences. Any arbitrary object
- * that is serializable to JSON using Gson can be used.
+ * This class provides type-safe access to Android preferences. Any arbitrary
+ * object that is serializable to JSON using Gson can be used.
  *
  * @author Inderjeet Singh
  */
 public class SharedPrefs {
-    private static Prefs prefs;
+
+    private static Context context;
+    private static Prefs defaultPrefs;
+    private static final Map<String, Prefs> namedPrefs = new HashMap<>();
 
     public static void init(Context context, Gson gson) {
         init(new Prefs(context, gson));
@@ -39,67 +45,140 @@ public class SharedPrefs {
         init(new Prefs(context, gson, prefsFileName, maxCacheSize));
     }
 
-    public static void init(Prefs prefs) {
-        SharedPrefs.prefs = prefs;
+    /**
+     * Initialize SharedPreferences with multiple Prefs objects each mapping to a
+     * different prefs file on the disk.
+     *
+     * @param defaultPrefs the default prefs which
+     * @param prefsList a set of Preferences each with a unique and non-null
+     *                  prefsFileName
+     * @throws IllegalArgumentException if any prefsList has a non-null
+     *                                  prefsFileName or if two prefs have the same
+     *                                  prefsFileName.
+     */
+    public synchronized static void init(Prefs defaultPrefs, Prefs... prefsList) {
+        Objects.requireNonNull(defaultPrefs);
+        SharedPrefs.defaultPrefs = defaultPrefs;
+        if (prefsList != null) {
+            String defaultPrefsFileName = defaultPrefs.getPrefsFileName(); // can be null
+            for (Prefs prefs : prefsList) {
+                String prefsFileName = prefs.getPrefsFileName();
+                if (prefsFileName == null) {
+                    throw new IllegalArgumentException("Only defaultPrefs is allowed to have a null prefsFileName!");
+                }
+                if (prefsFileName.equals(defaultPrefsFileName)) {
+                    throw new IllegalArgumentException(prefsFileName + " is already registered as the defaultPrefs!");
+                }
+                if (namedPrefs.containsKey(prefsFileName)) {
+                    throw new IllegalArgumentException("Already added Prefs for " + prefsFileName + ". Duplicates not allowed.");
+                }
+                namedPrefs.put(prefsFileName, prefs);
+            }
+        }
     }
 
-    public static void addListener(EventListener listener) {
-        prefs.addListener(listener);
+    public synchronized static void addListener(EventListener listener) {
+        defaultPrefs.addListener(listener);
+        for (Prefs prefs : namedPrefs.values()) {
+            prefs.addListener(listener);
+        }
     }
 
-    public static void removeListener(EventListener listener) {
-        prefs.removeListener(listener);
+    public synchronized static void removeListener(EventListener listener) {
+        defaultPrefs.removeListener(listener);
+        for (Prefs prefs : namedPrefs.values()) {
+            prefs.removeListener(listener);
+        }
     }
 
     public static Context context() {
-        return prefs.context();
+        return context;
     }
 
     public static <T> T get(TypedKey<T> key) {
-        return prefs.get(key);
+        return prefs(key).get(key);
     }
 
     public static <T> T get(String keyName, Class<T> keyClass) {
-        return prefs.get(keyName, keyClass);
+        return defaultPrefs.get(keyName, keyClass);
     }
 
     public static <T> T get(TypedKey<T> key, T defaultValue) {
-        return prefs.get(key, defaultValue);
+        return prefs(key).get(key, defaultValue);
     }
 
     public static <T> T get(String keyName, Class<T> keyClass, T defaultValue) {
-        return prefs.get(keyName, keyClass, defaultValue);
+        return defaultPrefs.get(keyName, keyClass, defaultValue);
     }
 
-    public Set<String> keySet() {
-        return prefs.keySet();
+    public Set<String> keySet(String prefName) {
+        return prefs(prefName).keySet();
     }
 
     public static <T> boolean contains(TypedKey<T> key) {
-        return prefs.contains(key);
+        return prefs(key).contains(key);
     }
 
     public static <T> boolean contains(String keyName, Class<T> keyClass) {
-        return prefs.contains(keyName, keyClass);
+        return defaultPrefs.contains(keyName, keyClass);
     }
 
     public static <T> void put(TypedKey<T> key, T value) {
-        prefs.put(key, value);
+        prefs(key).put(key, value);
     }
 
     public static <T> void put(String keyName, Class<T> keyClass, T value) {
-        prefs.put(keyName,  keyClass, value);
+        defaultPrefs.put(keyName, keyClass, value);
     }
 
     public static <T> void remove(TypedKey<T> key) {
-        prefs.remove(key);
+        prefs(key).remove(key);
     }
 
     public static <T> void remove(String keyName, Class<T> keyClass) {
-        prefs.remove(keyName, keyClass);
+        defaultPrefs.remove(keyName, keyClass);
     }
 
-    public static void clear() {
-        prefs.clear();
+    public static void clear(String prefsFileName) {
+        prefs(prefsFileName).clear();
+    }
+
+    private static <T> Prefs prefs(TypedKey<T> key) {
+        return prefs(key.getPrefsFileName());
+    }
+
+    private static <T> Prefs prefs(String prefsFileName) {
+        Prefs prefs = prefsFileName == null ? defaultPrefs : namedPrefs.get(prefsFileName);
+        Objects.requireNonNull(prefs, prefsFileName + " not initialized before use!");
+        return prefs;
+    }
+
+    public static final class TestAccess {
+        public static void init(Context context, Gson gson) {
+            synchronized (SharedPrefs.class) {
+                reset();
+                SharedPrefs.init(context, gson);
+            }
+        }
+
+        public static void init(Context context, Gson gson, String prefsFileName, int maxCacheSize) {
+            synchronized (SharedPrefs.class) {
+                reset();
+                SharedPrefs.init(context, gson, prefsFileName, maxCacheSize);
+            }
+        }
+
+        public static void init(Prefs defaultPrefs, Prefs... prefsList) {
+            synchronized (SharedPrefs.class) {
+                reset();
+                SharedPrefs.init(defaultPrefs, prefsList);
+            }
+        }
+
+        private static void reset() {
+            SharedPrefs.context = null;
+            SharedPrefs.defaultPrefs = null;
+            SharedPrefs.namedPrefs.clear();
+        }
     }
 }

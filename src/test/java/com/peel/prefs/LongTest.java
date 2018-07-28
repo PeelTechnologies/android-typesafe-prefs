@@ -45,12 +45,13 @@ public class LongTest {
 
     @Before
     public void setUp() {
+        String prefsFileName = "my_props";
         context = AndroidFixtures.createMockContext(new AndroidFixtures.PrefsListener() {
             @Override public void onInit(SharedPreferences persist) {
                 persistPrefs = persist;
             }
-        });
-        prefs = new Prefs(context, gson);
+        }, prefsFileName);
+        prefs = new Prefs(context, gson, prefsFileName, 5);
     }
 
     @Test
