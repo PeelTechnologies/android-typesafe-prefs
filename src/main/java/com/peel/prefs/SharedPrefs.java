@@ -59,6 +59,7 @@ public class SharedPrefs {
     public synchronized static void init(Prefs defaultPrefs, Prefs... prefsList) {
         Objects.requireNonNull(defaultPrefs);
         SharedPrefs.defaultPrefs = defaultPrefs;
+        SharedPrefs.context = defaultPrefs.context();
         if (prefsList != null) {
             String defaultPrefsFileName = defaultPrefs.getPrefsFileName(); // can be null
             for (Prefs prefs : prefsList) {

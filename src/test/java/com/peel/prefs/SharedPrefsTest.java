@@ -16,6 +16,7 @@
 package com.peel.prefs;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -39,10 +40,10 @@ import android.preference.PreferenceManager;
 @PrepareForTest({Context.class, SharedPreferences.class, PreferenceManager.class})
 public class SharedPrefsTest {
 
-    private static final Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Test
-    public void testInitWIthCustomDefaultProps() {
+    public void testInitWithCustomDefaultProps() {
         Context context = AndroidFixtures.createMockContext(null, "my_props");
         SharedPrefs.TestAccess.init(context, gson, "my_props", 3);
         SharedPrefs.put("userId",  String.class, "1999999");
@@ -59,6 +60,19 @@ public class SharedPrefsTest {
         assertEquals("1999999", SharedPrefs.get("userId", String.class));
         SharedPrefs.remove("userId", String.class);
         assertNull(SharedPrefs.get("userId", String.class));
+    }
+
+    @Test
+    public void testInitContext() {
+        Context context = AndroidFixtures.createMockContext(null, "my_props", "my_props1");
+        SharedPrefs.TestAccess.init(context, gson);
+        assertNotNull(SharedPrefs.context());
+
+        SharedPrefs.TestAccess.init(context, gson, "my_props", 3);
+        assertNotNull(SharedPrefs.context());
+
+        SharedPrefs.TestAccess.init(new Prefs(context, gson, "my_props", 2));
+        assertNotNull(SharedPrefs.context());
     }
 
     @Test
