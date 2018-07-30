@@ -60,15 +60,15 @@ public class SharedPrefs {
         Objects.requireNonNull(defaultPrefs);
         SharedPrefs.defaultPrefs = defaultPrefs;
         SharedPrefs.context = defaultPrefs.context();
+        String defaultPrefsFileName = defaultPrefs.getPrefsFileName(); // can be null
+        if (defaultPrefsFileName != null) {
+            namedPrefs.put(defaultPrefsFileName, defaultPrefs);
+        }
         if (prefsList != null) {
-            String defaultPrefsFileName = defaultPrefs.getPrefsFileName(); // can be null
             for (Prefs prefs : prefsList) {
                 String prefsFileName = prefs.getPrefsFileName();
                 if (prefsFileName == null) {
                     throw new IllegalArgumentException("Only defaultPrefs is allowed to have a null prefsFileName!");
-                }
-                if (prefsFileName.equals(defaultPrefsFileName)) {
-                    throw new IllegalArgumentException(prefsFileName + " is already registered as the defaultPrefs!");
                 }
                 if (namedPrefs.containsKey(prefsFileName)) {
                     throw new IllegalArgumentException("Already added Prefs for " + prefsFileName + ". Duplicates not allowed.");
@@ -148,7 +148,8 @@ public class SharedPrefs {
         return prefs(key.getPrefsFileName());
     }
 
-    private static <T> Prefs prefs(String prefsFileName) {
+    // visible for testing only
+    static <T> Prefs prefs(String prefsFileName) {
         Prefs prefs = prefsFileName == null ? defaultPrefs : namedPrefs.get(prefsFileName);
         Objects.requireNonNull(prefs, prefsFileName + " not initialized before use!");
         return prefs;

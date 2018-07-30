@@ -87,10 +87,12 @@ public class SharedPrefsTest {
         SharedPrefs.put(key1,  "1");
         assertEquals("1", SharedPrefs.get(key1));
         assertEquals("1", SharedPrefs.get("key1", String.class)); // side effect, not really intended but works
+        assertEquals("1", SharedPrefs.prefs("my_props1").get(key1));
 
         TypedKey<String> key2 = new TypedKey<>("key2", String.class, "my_props2", false);
         SharedPrefs.put(key2,  "2");
         assertEquals("2", SharedPrefs.get(key2));
+
     }
 
     @Test
