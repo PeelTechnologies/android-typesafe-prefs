@@ -180,7 +180,10 @@ public class SharedPrefs {
         private static void reset() {
             SharedPrefs.context = null;
             SharedPrefs.defaultPrefs = null;
-            SharedPrefs.namedPrefs.clear();
+            for (Prefs prefs : namedPrefs.values()) {
+                prefs.clear();
+            }
+            namedPrefs.clear();
         }
     }
 }

@@ -92,7 +92,17 @@ public class SharedPrefsTest {
         TypedKey<String> key2 = new TypedKey<>("key2", String.class, "my_props2", false);
         SharedPrefs.put(key2,  "2");
         assertEquals("2", SharedPrefs.get(key2));
+    }
 
+    @Test
+    public void testNonNullDefaultPrefGetWithPref() {
+        Context context = AndroidFixtures.createMockContext(null, "my_props1", "my_props2");
+        SharedPrefs.TestAccess.init(new Prefs(context, gson, "my_props1", 2),
+                new Prefs(context, gson, "my_props2", 3));
+        SharedPrefs.put("key",  String.class, "1");
+        assertEquals("1", SharedPrefs.get("key", String.class));
+        TypedKey<String> key = new TypedKey<>("key", String.class, "my_props1", true);
+        assertEquals("1", SharedPrefs.get(key));
     }
 
     @Test
@@ -154,6 +164,27 @@ public class SharedPrefsTest {
         assertEquals("3", SharedPrefs.get(key2));
 
         SharedPrefs.clear("my_props2");
+        assertNull(SharedPrefs.get(key2));
+    }
+
+
+    @Test
+    public void testReset() {
+        Context context = AndroidFixtures.createMockContext(null, "my_props1", "my_props2");
+        SharedPrefs.TestAccess.init(new Prefs(context, gson),
+                new Prefs(context, gson, "my_props1", 3), new Prefs(context, gson, "my_props2", 3));
+
+        TypedKey<String> key1 = new TypedKey<>("key", String.class, "my_props1", false);
+        TypedKey<String> key2 = new TypedKey<>("key", String.class, "my_props2", false);
+        SharedPrefs.put("key",  String.class, "1");
+        SharedPrefs.put(key1,  "2");
+        SharedPrefs.put(key2,  "3");
+        assertNotNull(SharedPrefs.get(key1));
+        assertNotNull(SharedPrefs.get(key2));
+
+        SharedPrefs.TestAccess.init(new Prefs(context, gson),
+                new Prefs(context, gson, "my_props1", 3), new Prefs(context, gson, "my_props2", 3));
+        assertNull(SharedPrefs.get(key1));
         assertNull(SharedPrefs.get(key2));
     }
 }
