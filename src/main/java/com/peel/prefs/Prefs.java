@@ -18,7 +18,6 @@ package com.peel.prefs;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -47,12 +46,12 @@ public class Prefs {
     private final List<EventListener> listeners = new ArrayList<>();
 
     public void addListener(EventListener listener) {
-        Objects.requireNonNull(listener);
+        requireNonNull(listener);
         listeners.add(listener);
     }
 
     public void removeListener(EventListener listener) {
-        Objects.requireNonNull(listener);
+        requireNonNull(listener);
         listeners.remove(listener);
     }
 
@@ -264,5 +263,13 @@ public class Prefs {
         cache.evictAll();
         SharedPreferences prefs = getPrefs();
         prefs.edit().clear().apply();
+    }
+
+    static void requireNonNull(Object obj) {
+        if (obj == null) throw new NullPointerException();
+    }
+
+    static void requireNonNull(Object obj, String msg) {
+        if (obj == null) throw new NullPointerException(msg);
     }
 }

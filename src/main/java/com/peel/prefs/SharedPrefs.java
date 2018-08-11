@@ -17,7 +17,6 @@ package com.peel.prefs;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -57,7 +56,7 @@ public class SharedPrefs {
      *                                  prefsFileName.
      */
     public synchronized static void init(Prefs defaultPrefs, Prefs... prefsList) {
-        Objects.requireNonNull(defaultPrefs);
+        Prefs.requireNonNull(defaultPrefs);
         SharedPrefs.defaultPrefs = defaultPrefs;
         SharedPrefs.context = defaultPrefs.context();
         String defaultPrefsFileName = defaultPrefs.getPrefsFileName(); // can be null
@@ -151,7 +150,7 @@ public class SharedPrefs {
     // visible for testing only
     static <T> Prefs prefs(String prefsFileName) {
         Prefs prefs = prefsFileName == null ? defaultPrefs : namedPrefs.get(prefsFileName);
-        Objects.requireNonNull(prefs, prefsFileName + " not initialized before use!");
+        Prefs.requireNonNull(prefs, prefsFileName + " not initialized before use!");
         return prefs;
     }
 
