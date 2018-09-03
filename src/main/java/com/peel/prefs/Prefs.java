@@ -192,6 +192,18 @@ public class Prefs {
         }
     }
 
+    public <T> void putIfAbsent(TypedKey<T> key, T value) {
+        if (!contains(key)) {
+            put(key, value);
+        }
+    }
+
+    public <T> void putIfAbsent(String keyName, Class<T> keyClass, T value) {
+        if (!contains(keyName, keyClass)) {
+            put(keyName, keyClass, value);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private <T> void putInternal(String name, Type type, T value, boolean cacheable) {
         if (cacheable) cache.put(name, value);

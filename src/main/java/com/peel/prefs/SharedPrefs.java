@@ -131,6 +131,14 @@ public class SharedPrefs {
         defaultPrefs.put(keyName, keyClass, value);
     }
 
+    public static <T> void putIfAbsent(TypedKey<T> key, T value) {
+        prefs(key).putIfAbsent(key, value);
+    }
+
+    public static <T> void putIfAbsent(String keyName, Class<T> keyClass, T value) {
+        defaultPrefs.putIfAbsent(keyName, keyClass, value);
+    }
+
     public static <T> void remove(TypedKey<T> key) {
         prefs(key).remove(key);
     }
